@@ -9,9 +9,10 @@ import (
 )
 
 type Controller struct {
-	bot *telebot.Bot
-	log *zap.Logger
-	cfg *config.Config
+	bot      *telebot.Bot
+	log      *zap.Logger
+	cfg      *config.Config
+	stopChan chan struct{}
 }
 
 var _ controller.Controller = (*Controller)(nil)
@@ -45,12 +46,15 @@ func (ctrl *Controller) configureRoutes() {
 }
 
 func (ctrl *Controller) Start(context.Context) error {
+	ctrl.stopChan = make(chan struct{})
 	go ctrl.bot.Start()
+	go ctrl.Poll()
 	ctrl.log.Info("started bot")
 	return nil
 }
 
 func (ctrl *Controller) Stop(context.Context) error {
+	defer close(ctrl.stopChan)
 	ctrl.bot.Stop()
 	ctrl.log.Info("stopped bot")
 	return nil

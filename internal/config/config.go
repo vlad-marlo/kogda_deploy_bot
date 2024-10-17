@@ -8,11 +8,13 @@ import (
 	"github.com/heetch/confita/backend/flags"
 	"os"
 	"path"
+	"time"
 )
 
 type Config struct {
 	Telegram TelegramConfig `config:"telegram" toml:"telegram"`
 	Postgres PostgresConfig `config:"postgres" toml:"postgres"`
+	App      AppConfig
 }
 
 func New() (*Config, error) {
@@ -30,6 +32,10 @@ func New() (*Config, error) {
 		file.NewOptionalBackend(yamlPath),
 		flags.NewBackend(),
 	)
+	location, err := time.LoadLocation("Europe/Moscow")
+	if err != nil {
+		return nil, err
+	}
 	config := &Config{
 		Telegram: TelegramConfig{
 			TelegramTimeoutSeconds: 10,
@@ -40,6 +46,9 @@ func New() (*Config, error) {
 			User:     "postgres",
 			Password: "postgres",
 			Database: "postgres",
+		},
+		App: AppConfig{
+			Location: location,
 		},
 	}
 	err = loader.Load(context.Background(), config)
