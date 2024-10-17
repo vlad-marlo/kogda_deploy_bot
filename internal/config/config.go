@@ -12,6 +12,7 @@ import (
 
 type Config struct {
 	Telegram TelegramConfig `config:"telegram" toml:"telegram"`
+	Postgres PostgresConfig `config:"postgres" toml:"postgres"`
 }
 
 func New() (*Config, error) {
@@ -32,6 +33,13 @@ func New() (*Config, error) {
 	config := &Config{
 		Telegram: TelegramConfig{
 			TelegramTimeoutSeconds: 10,
+		},
+		Postgres: PostgresConfig{
+			Host:     "localhost",
+			Port:     5432,
+			User:     "postgres",
+			Password: "postgres",
+			Database: "postgres",
 		},
 	}
 	err = loader.Load(context.Background(), config)
