@@ -4,6 +4,7 @@ import (
 	"context"
 	"github.com/vlad-marlo/kogda_deploy_bot/internal/config"
 	"github.com/vlad-marlo/kogda_deploy_bot/internal/controller"
+	"github.com/vlad-marlo/kogda_deploy_bot/internal/storage"
 	"go.uber.org/zap"
 	"gopkg.in/telebot.v4"
 )
@@ -13,11 +14,12 @@ type Controller struct {
 	log      *zap.Logger
 	cfg      *config.Config
 	stopChan chan struct{}
+	storage  storage.Storage
 }
 
 var _ controller.Controller = (*Controller)(nil)
 
-func New(log *zap.Logger, cfg *config.Config) (*Controller, error) {
+func New(log *zap.Logger, cfg *config.Config, store storage.Storage) (*Controller, error) {
 	botSettings := telebot.Settings{
 		Token: cfg.Telegram.TelegramSecretKey,
 		Poller: &telebot.LongPoller{
@@ -31,9 +33,10 @@ func New(log *zap.Logger, cfg *config.Config) (*Controller, error) {
 	}
 
 	ctrl := &Controller{
-		log: log,
-		cfg: cfg,
-		bot: bot,
+		log:     log,
+		cfg:     cfg,
+		bot:     bot,
+		storage: store,
 	}
 
 	ctrl.configureRoutes()

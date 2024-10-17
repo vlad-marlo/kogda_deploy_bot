@@ -1,5 +1,15 @@
 package model
 
+type ChatType string
+
+const (
+	ChatPrivate        ChatType = "private"
+	ChatGroup          ChatType = "group"
+	ChatSuperGroup     ChatType = "supergroup"
+	ChatChannel        ChatType = "channel"
+	ChatChannelPrivate ChatType = "privatechannel"
+)
+
 type ChatDTO struct {
 	ID          int64  `json:"id"`
 	Title       string `json:"title"`

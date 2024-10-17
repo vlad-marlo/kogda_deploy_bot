@@ -26,6 +26,7 @@ go.work.sum
 .idea
 
 config.toml
+docker_config.toml
 config.yaml
 config.json
 telebot
