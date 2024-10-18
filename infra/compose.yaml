@@ -1,13 +1,13 @@
 version: '3.9'
 services:
   bot:
-    image: vladmarlo/kogda_deploy
+    image: vladmarlo/kogda_deploy:latest
     restart: always
     depends_on:
       db:
         condition: service_healthy
     volumes:
-       - ./docker_config.toml:/bin/config.toml
+       - ./docker_config.toml:/config.toml
   db:
     image: postgres
     restart: always
