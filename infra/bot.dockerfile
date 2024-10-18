@@ -35,4 +35,4 @@ USER appuser
 
 COPY --from=build /bin/telebot /bin/
 
-ENTRYPOINT [ "/bin/telebot" ]
+CMD [ "/bin/telebot" ]
