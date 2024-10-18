@@ -17,6 +17,16 @@ type ChatRepository struct {
 	log  *zap.Logger
 }
 
+func (c *ChatRepository) DeleteChat(ctx context.Context, id int64) error {
+	const query = `delete from chats where id = $1;`
+	_, err := c.pool.Exec(ctx, query, id)
+	if err != nil {
+		return fmt.Errorf("delete chat: %w", err)
+	}
+	c.log.Info("deleted chat", zap.Int64("id", id))
+	return nil
+}
+
 func (c *ChatRepository) GetChatsWithNoMessageInIt(ctx context.Context, date time.Time, msg string) ([]int64, error) {
 	const query = `SELECT id FROM chats WHERE NOT EXISTS(
     SELECT * FROM chat_day WHERE chat_id = chats.id AND day = $1::DATE and message = $2

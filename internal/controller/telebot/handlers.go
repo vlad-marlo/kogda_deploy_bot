@@ -19,6 +19,28 @@ func (ctrl *Controller) getDays() int {
 	return days
 }
 
+func (ctrl *Controller) HandleStop(ctx telebot.Context) error {
+	chat := ctx.Chat()
+	switch chat.Type {
+	case telebot.ChatPrivate:
+	case telebot.ChatGroup:
+	case telebot.ChatChannel:
+	case telebot.ChatChannelPrivate:
+	case telebot.ChatSuperGroup:
+	}
+	ctrl.log.Debug("Got request")
+	err := ctrl.storage.Chat().DeleteChat(context.Background(), chat.ID)
+	if err != nil {
+		ctrl.log.Error(
+			"Failed to delete chat",
+			zap.Error(err),
+			zap.Int64("chat_id", chat.ID),
+		)
+	}
+
+	return ctx.Send(fmt.Sprintf(startMsg, ctrl.getDays()))
+}
+
 func (ctrl *Controller) HandleStart(ctx telebot.Context) error {
 	chat := ctx.Chat()
 	switch chat.Type {

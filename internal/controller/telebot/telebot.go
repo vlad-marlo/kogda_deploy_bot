@@ -49,6 +49,7 @@ func (ctrl *Controller) configureRoutes() {
 	ctrl.log.Info("admins ids", zap.Int64s("ids", ctrl.cfg.Telegram.AdminIDs))
 	ctrl.bot.Handle("/help", ctrl.HandleHelp)
 	ctrl.bot.Handle("/start", ctrl.HandleStart)
+	ctrl.bot.Handle("/stop", ctrl.HandleStop)
 	adminOnly := ctrl.bot.Group()
 	adminOnly.Use(middleware.Whitelist(ctrl.cfg.Telegram.AdminIDs...))
 	adminOnly.Handle("/abet", ctrl.HandleAbet)
