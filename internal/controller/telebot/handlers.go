@@ -151,15 +151,17 @@ func (ctrl *Controller) Abet() {
 	ctrl.log.Info("got ids", zap.Int64s("chats", ids))
 	for _, id := range ids {
 		go func() {
-			msg, err := ctrl.bot.Send(telebot.ChatID(id), fmt.Sprintf(
-				abetMsg,
-				ctrl.getDays(),
-			))
-			if err != nil {
-				ctrl.log.Error("error while sending abet message", zap.Error(err), zap.Int64("chat_id", id))
-				return
+			for range 3 {
+				msg, err := ctrl.bot.Send(telebot.ChatID(id), fmt.Sprintf(
+					abetMsg,
+					ctrl.getDays(),
+				))
+				if err != nil {
+					ctrl.log.Error("error while sending abet message", zap.Error(err), zap.Int64("chat_id", id))
+					return
+				}
+				ctrl.log.Info("sent abet message", zap.Int64("chat_id", id), zap.Any("msg", msg))
 			}
-			ctrl.log.Info("sent abet message", zap.Int64("chat_id", id), zap.Any("msg", msg))
 		}()
 	}
 }
