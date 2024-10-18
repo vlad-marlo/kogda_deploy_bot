@@ -7,6 +7,7 @@ import (
 	"github.com/vlad-marlo/kogda_deploy_bot/internal/storage"
 	"go.uber.org/zap"
 	"gopkg.in/telebot.v4"
+	"gopkg.in/telebot.v4/middleware"
 )
 
 type Controller struct {
@@ -45,7 +46,13 @@ func New(log *zap.Logger, cfg *config.Config, store storage.Storage) (*Controlle
 }
 
 func (ctrl *Controller) configureRoutes() {
+	ctrl.log.Info("admins ids", zap.Int64s("ids", ctrl.cfg.Telegram.AdminIDs))
+	ctrl.bot.Handle("/help", ctrl.HandleHelp)
 	ctrl.bot.Handle("/start", ctrl.HandleStart)
+	adminOnly := ctrl.bot.Group()
+	adminOnly.Use(middleware.Whitelist(ctrl.cfg.Telegram.AdminIDs...))
+	adminOnly.Handle("/abet", ctrl.HandleAbet)
+	adminOnly.Handle("/spam", ctrl.HandleAbet)
 }
 
 func (ctrl *Controller) Start(context.Context) error {
