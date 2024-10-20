@@ -21,14 +21,7 @@ func (ctrl *Controller) getDays() int {
 
 func (ctrl *Controller) HandleStop(ctx telebot.Context) error {
 	chat := ctx.Chat()
-	switch chat.Type {
-	case telebot.ChatPrivate:
-	case telebot.ChatGroup:
-	case telebot.ChatChannel:
-	case telebot.ChatChannelPrivate:
-	case telebot.ChatSuperGroup:
-	}
-	ctrl.log.Debug("Got request")
+	ctrl.log.Debug("deleting chat")
 	err := ctrl.storage.Chat().DeleteChat(context.Background(), chat.ID)
 	if err != nil {
 		ctrl.log.Error(
@@ -43,13 +36,6 @@ func (ctrl *Controller) HandleStop(ctx telebot.Context) error {
 
 func (ctrl *Controller) HandleStart(ctx telebot.Context) error {
 	chat := ctx.Chat()
-	switch chat.Type {
-	case telebot.ChatPrivate:
-	case telebot.ChatGroup:
-	case telebot.ChatChannel:
-	case telebot.ChatChannelPrivate:
-	case telebot.ChatSuperGroup:
-	}
 	ctrl.log.Debug("Got request")
 	err := ctrl.storage.Chat().CreateChat(
 		context.Background(),
@@ -152,15 +138,26 @@ func (ctrl *Controller) Abet() {
 	for _, id := range ids {
 		go func() {
 			for range 3 {
-				msg, err := ctrl.bot.Send(telebot.ChatID(id), fmt.Sprintf(
-					abetMsg,
-					ctrl.getDays(),
-				))
+				msg, err := ctrl.bot.Send(
+					telebot.ChatID(id),
+					fmt.Sprintf(
+						abetMsg,
+						ctrl.getDays(),
+					),
+				)
 				if err != nil {
-					ctrl.log.Error("error while sending abet message", zap.Error(err), zap.Int64("chat_id", id))
+					ctrl.log.Error(
+						"error while sending abet message",
+						zap.Error(err),
+						zap.Int64("chat_id", id),
+					)
 					return
 				}
-				ctrl.log.Info("sent abet message", zap.Int64("chat_id", id), zap.Any("msg", msg))
+				ctrl.log.Info(
+					"sent abet message",
+					zap.Int64("chat_id", id),
+					zap.Any("msg", msg),
+				)
 			}
 		}()
 	}
@@ -168,11 +165,18 @@ func (ctrl *Controller) Abet() {
 
 func (ctrl *Controller) HandleTick() {
 	now := time.Now().In(ctrl.cfg.App.Location)
+	date := now.Weekday()
 	hour, minute, second := now.Clock()
 	abetPredicate := hour == 13 && minute == 59 && second == 0
 	hourTillAbetPredicate := hour == 12 && minute == 59 && second == 0
 	newDayPredicate := hour == 0 && minute == 0 && second == 0
 	newMorningPredicate := hour == 8 && minute == 0 && second == 0
+	switch date {
+	case time.Tuesday, time.Friday:
+	default:
+		abetPredicate = false
+		hourTillAbetPredicate = false
+	}
 	switch {
 	case abetPredicate:
 		ctrl.log.Info("go ctrl.Abet()")

@@ -14,7 +14,7 @@ import (
 type Config struct {
 	Telegram TelegramConfig `config:"telegram" toml:"telegram"`
 	Postgres PostgresConfig `config:"postgres" toml:"postgres"`
-	App      AppConfig
+	App      AppConfig      `config:"-"`
 }
 
 func New() (*Config, error) {
